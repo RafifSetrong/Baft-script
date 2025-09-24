@@ -28,7 +28,7 @@ screen.ResetOnSpawn = false
 screen.Parent = playerGui
 
 local frame = Instance.new("Frame")
-frame.Size = UDim2.new(0, 220, 0, 240)
+frame.Size = UDim2.new(0, 220, 0, 260) -- ditambah tinggi biar muat teks credit
 frame.Position = UDim2.new(0, 20, 0, 100)
 frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 frame.Active = true
@@ -97,6 +97,18 @@ delayBox.TextColor3 = Color3.new(1,1,1)
 delayBox.Font = Enum.Font.SourceSansBold
 delayBox.TextSize = 16
 delayBox.Parent = frame
+
+-- === Tambahan: Credit Label ===
+local creditLbl = Instance.new("TextLabel")
+creditLbl.Size = UDim2.new(1, -10, 0, 20)
+creditLbl.Position = UDim2.new(0, 5, 1, -25) -- posisi di bawah frame
+creditLbl.BackgroundTransparency = 1
+creditLbl.Text = "by duh man"
+creditLbl.TextColor3 = Color3.fromRGB(200,200,200)
+creditLbl.Font = Enum.Font.SourceSansItalic
+creditLbl.TextSize = 14
+creditLbl.TextXAlignment = Enum.TextXAlignment.Right
+creditLbl.Parent = frame
 
 -- === FUNCTIONS ===
 local function spawnBlocks()
