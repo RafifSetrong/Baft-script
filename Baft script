@@ -1,0 +1,150 @@
+-- LocalScript (StarterPlayerScripts)
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- === KOORDINAT ===
+local coords = {
+    Vector3.new(-60.69, 98.35, 1407.47),
+    Vector3.new(-46.64, 63.55, 2191.59),
+    Vector3.new(-54.76, 79.77, 2992.26),
+    Vector3.new(-67.15, 97.00, 3720.43),
+    Vector3.new(-57.09, 73.47, 4563.78),
+    Vector3.new(-52.07, 60.81, 5299.54),
+    Vector3.new(-54.51, 67.79, 6103.06),
+    Vector3.new(-64.18, 73.82, 6813.04),
+    Vector3.new(-43.26, 83.80, 7640.83),
+    Vector3.new(-56.45, -346.26, 9500.80)
+}
+
+local blocks = {}
+local farming = false
+local delayTime = 1 -- default 1 detik
+
+-- === GUI ===
+local screen = Instance.new("ScreenGui")
+screen.Name = "AutoFarmGUI"
+screen.ResetOnSpawn = false
+screen.Parent = playerGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 220, 0, 240)
+frame.Position = UDim2.new(0, 20, 0, 100)
+frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screen
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 28)
+title.BackgroundTransparency = 1
+title.Text = "Auto Route Farm"
+title.TextColor3 = Color3.new(1,1,1)
+title.Font = Enum.Font.SourceSansBold
+title.TextSize = 18
+title.Parent = frame
+
+local statusLbl = Instance.new("TextLabel")
+statusLbl.Size = UDim2.new(1, -10, 0, 24)
+statusLbl.Position = UDim2.new(0, 5, 0, 30)
+statusLbl.BackgroundTransparency = 1
+statusLbl.Text = "Status: Stopped"
+statusLbl.TextColor3 = Color3.new(1,1,0)
+statusLbl.Font = Enum.Font.SourceSans
+statusLbl.TextSize = 16
+statusLbl.Parent = frame
+
+local spawnBtn = Instance.new("TextButton")
+spawnBtn.Size = UDim2.new(1, -10, 0, 30)
+spawnBtn.Position = UDim2.new(0, 5, 0, 60)
+spawnBtn.Text = "Spawn Blocks"
+spawnBtn.BackgroundColor3 = Color3.fromRGB(50, 120, 200)
+spawnBtn.TextColor3 = Color3.new(1,1,1)
+spawnBtn.Parent = frame
+
+local autoBtn = Instance.new("TextButton")
+autoBtn.Size = UDim2.new(1, -10, 0, 30)
+autoBtn.Position = UDim2.new(0, 5, 0, 95)
+autoBtn.Text = "Start Auto Farm"
+autoBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 80)
+autoBtn.TextColor3 = Color3.new(1,1,1)
+autoBtn.Parent = frame
+
+local stopBtn = Instance.new("TextButton")
+stopBtn.Size = UDim2.new(1, -10, 0, 30)
+stopBtn.Position = UDim2.new(0, 5, 0, 130)
+stopBtn.Text = "Stop Auto Farm"
+stopBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+stopBtn.TextColor3 = Color3.new(1,1,1)
+stopBtn.Parent = frame
+
+local delayLbl = Instance.new("TextLabel")
+delayLbl.Size = UDim2.new(1, -10, 0, 20)
+delayLbl.Position = UDim2.new(0, 5, 0, 165)
+delayLbl.BackgroundTransparency = 1
+delayLbl.Text = "Teleport Delay (sec):"
+delayLbl.TextColor3 = Color3.new(1,1,1)
+delayLbl.TextSize = 14
+delayLbl.Font = Enum.Font.SourceSans
+delayLbl.Parent = frame
+
+local delayBox = Instance.new("TextBox")
+delayBox.Size = UDim2.new(1, -10, 0, 30)
+delayBox.Position = UDim2.new(0, 5, 0, 190)
+delayBox.Text = tostring(delayTime)
+delayBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+delayBox.TextColor3 = Color3.new(1,1,1)
+delayBox.Font = Enum.Font.SourceSansBold
+delayBox.TextSize = 16
+delayBox.Parent = frame
+
+-- === FUNCTIONS ===
+local function spawnBlocks()
+    for _, b in ipairs(blocks) do if b and b.Parent then b:Destroy() end end
+    blocks = {}
+    for i = 1, #coords - 1 do
+        local part = Instance.new("Part")
+        part.Size = Vector3.new(8, 2, 8)
+        part.Anchored = true
+        part.CanCollide = true
+        part.Color = Color3.fromRGB(255, 170, 0)
+        part.Position = coords[i]
+        part.Parent = workspace
+        table.insert(blocks, part)
+    end
+end
+
+local function autoFarm()
+    farming = true
+    statusLbl.Text = "Status: Farming..."
+    while farming do
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:WaitForChild("HumanoidRootPart")
+        for _, pos in ipairs(coords) do
+            if not farming then break end
+            hrp.CFrame = CFrame.new(pos + Vector3.new(0, 5, 0))
+            task.wait(delayTime)
+        end
+    end
+    statusLbl.Text = "Status: Stopped"
+end
+
+-- === EVENTS ===
+spawnBtn.MouseButton1Click:Connect(spawnBlocks)
+
+autoBtn.MouseButton1Click:Connect(function()
+    if not farming then autoFarm() end
+end)
+
+stopBtn.MouseButton1Click:Connect(function()
+    farming = false
+end)
+
+delayBox.FocusLost:Connect(function()
+    local num = tonumber(delayBox.Text)
+    if num and num > 0 then
+        delayTime = num
+    else
+        delayBox.Text = tostring(delayTime)
+    end
+end)
